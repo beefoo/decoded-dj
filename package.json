@@ -1,5 +1,5 @@
 {
-  "name": "sonic-prophet",
+  "name": "decoded-dj",
   "description": "Generate grooves hidden in old texts",
   "scripts": {
     "start": "node server.js"
