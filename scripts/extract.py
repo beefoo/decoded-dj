@@ -18,7 +18,7 @@ parser.add_argument(
 parser.add_argument(
     "-pp",
     "--pages",
-    default="28",
+    default="426-436",
     help="A range, a list, or a list of ranges, e.g. 4,6-10,20,25-40; 'all' for all pages",
 )
 parser.add_argument(
@@ -134,6 +134,10 @@ def main(args):
 
     pbar.close()
     doc.close()
+
+    manifest = {"pages": list(pages)}
+    manifest_filename = f"{args.outputdir}manifest.json"
+    write_json(manifest_filename, manifest)
 
 
 main(parser.parse_args())
