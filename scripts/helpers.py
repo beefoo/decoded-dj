@@ -1,6 +1,7 @@
 """Helper functions"""
 
 import glob
+import json
 import os
 
 
@@ -22,3 +23,12 @@ def make_directories(filenames):
         dirname = os.path.dirname(filename)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
+
+
+def write_json(filename, data, pretty=False):
+    """Function to write JSON data to file"""
+    with open(filename, "w", encoding="utf8") as f:
+        if pretty:
+            json.dump(data, f, indent=4)
+        else:
+            json.dump(data, f)

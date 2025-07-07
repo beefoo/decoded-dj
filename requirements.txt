@@ -1,2 +1,2 @@
 PyMuPDF
-pytesseract
+tqdm
