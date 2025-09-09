@@ -1,3 +1,4 @@
+import Book from './Book.js';
 import MathHelper from './MathHelper.js';
 import PointerManager from './PointerManager.js';
 
@@ -16,6 +17,7 @@ export default class App {
       x: 0,
       y: 0,
     };
+    this.book = new Book(Object.assign({}, this.options));
     this.pointers = new PointerManager({
       onDrag: (pointer) => {
         this.onDragGlass(pointer);
