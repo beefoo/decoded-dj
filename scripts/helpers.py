@@ -5,6 +5,8 @@ import io
 import json
 import os
 
+import cv2
+import numpy as np
 from PIL import Image
 from potrace import Bitmap
 import pytesseract
@@ -100,6 +102,34 @@ def get_image_from_url(url):
     im = Image.open(image_filestream)
 
     return im
+
+
+def get_largest_mask_segment(im):
+    """Function to return the image with only the largest segment of the image"""
+
+    np_im = np.array(im.convert("RGB"))
+    cv_im = cv2.cvtColor(np_im, cv2.COLOR_RGB2GRAY)
+    inv_im = cv2.bitwise_not(cv_im)
+
+    # threshold
+    _, thresh = cv2.threshold(inv_im, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    # Try to get the largest segment
+    nb_components, output, stats, _centroids = cv2.connectedComponentsWithStats(
+        thresh, connectivity=4
+    )
+    sizes = stats[:, -1]
+    max_label = 1
+    max_size = sizes[1]
+    for i in range(1, nb_components):
+        if sizes[i] > max_size:
+            max_label = i
+            max_size = sizes[i]
+    im_with_largest_segment = np.zeros(output.shape)
+    im_with_largest_segment[output != max_label] = 255
+    im_with_largest_segment = Image.fromarray(im_with_largest_segment)
+
+    return im_with_largest_segment
 
 
 def image_to_svg(im, blacklevel=0.5, turdsize=5):
