@@ -102,11 +102,14 @@ def get_image_from_url(url):
     return im
 
 
-def image_to_svg(im):
+def image_to_svg(im, blacklevel=0.5, turdsize=5):
+    """
+    Given a PIL image, generate SVG code
+    """
     w, h = im.size
-    bm = Bitmap(im, blacklevel=0.5)
+    bm = Bitmap(im, blacklevel=blacklevel)
     plist = bm.trace(
-        turdsize=2,
+        turdsize=turdsize,
         turnpolicy=4,
         alphamax=1,
         opticurve=True,
