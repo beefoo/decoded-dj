@@ -6,3 +6,4 @@ Pillow
 potracer
 pytesseract
 requests
+tqdm

@@ -56,5 +56,6 @@ export default class App {
       w: rect.width,
       h: rect.height,
     };
+    this.book.onResize();
   }
 }

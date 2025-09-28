@@ -13,16 +13,6 @@ import pytesseract
 import requests
 
 
-def clear_directory(dirname):
-    """Function for emptying a directory"""
-    dirname = dirname.strip("/")
-    file_string = f"{dirname}/*"
-    filenames = glob.glob(file_string)
-    for fn in filenames:
-        if os.path.isfile(fn):
-            os.remove(fn)
-
-
 def add_confidences(chars, words):
     """
     Given characters with bounding boxes, match it with their words' confidences
@@ -51,6 +41,33 @@ def add_confidences(chars, words):
         chars[i] = char + tuple([confidence])
 
     return chars
+
+
+def contain_image(im, contain):
+    """
+    Resize an image such that it is contained within "contain
+    """
+
+    copy = im.copy()
+    copy.thumbnail((contain, contain), Image.Resampling.LANCZOS)
+    return copy
+
+
+def clear_directory(dirname):
+    """Function for emptying a directory"""
+    dirname = dirname.strip("/")
+    file_string = f"{dirname}/*"
+    filenames = glob.glob(file_string)
+    for fn in filenames:
+        if os.path.isfile(fn):
+            os.remove(fn)
+
+
+def download_file(url, filename):
+    """Download a url to file"""
+    r = requests.get(url, timeout=60)
+    with open(filename, "wb") as f:
+        f.write(r.content)
 
 
 def extract_letters(im, letters, tesseract_cmd, conf=90):
@@ -147,24 +164,30 @@ def image_to_svg(im, blacklevel=0.5, turdsize=5):
     )
 
     parts = []
+    precision = 3
     for curve in plist:
         fs = curve.start_point
-        parts.append(f"M{fs.x},{fs.y}")
+        fsX, fsY = (round(fs.x, precision), round(fs.y, precision))
+
+        parts.append(f"M{fsX},{fsY}")
         for segment in curve.segments:
             if segment.is_corner:
                 a = segment.c
                 b = segment.end_point
-                parts.append(f"L{a.x},{a.y}L{b.x},{b.y}")
+                aX, aY = (round(a.x, precision), round(a.y, precision))
+                bX, bY = (round(b.x, precision), round(b.y, precision))
+                parts.append(f"L{aX},{aY}L{bX},{bY}")
             else:
                 a = segment.c1
                 b = segment.c2
                 c = segment.end_point
-                parts.append(f"C{a.x},{a.y} {b.x},{b.y} {c.x},{c.y}")
+                aX, aY = (round(a.x, precision), round(a.y, precision))
+                bX, bY = (round(b.x, precision), round(b.y, precision))
+                cX, cY = (round(c.x, precision), round(c.y, precision))
+                parts.append(f"C{aX},{aY} {bX},{bY} {cX},{cY}")
         parts.append("z")
     svg = f'<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{w}" height="{h}" viewBox="0 0 {w} {h}">'
-    svg += (
-        f'<path stroke="none" fill="black" fill-rule="evenodd" d="{"".join(parts)}"/>'
-    )
+    svg += f'<path fill-rule="evenodd" d="{"".join(parts)}"/>'
     svg += "</svg>"
 
     return svg
@@ -178,6 +201,14 @@ def make_directories(filenames):
         dirname = os.path.dirname(filename)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
+
+
+def read_json(fn):
+    """Read a JSON file"""
+    data = None
+    with open(fn) as f:
+        data = json.load(f)
+    return data
 
 
 def rect_contains(rect_outer, rect_inner):

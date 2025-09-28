@@ -2,8 +2,7 @@
 
 import argparse
 import os
-from pprint import pprint
-import pymupdf
+from PIL import Image
 from tqdm import tqdm
 
 from helpers import *
@@ -12,8 +11,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
     "-in",
     "--input",
-    default="data/theatrum_chemicum_britannicum_15004720.pdf",
-    help="Path to PDF file",
+    default="data/theatrum_chemicum_britannicum_15004720_iiif_manifest.json",
+    help="Path to IIIF manifest file",
 )
 parser.add_argument(
     "-pp",
@@ -28,17 +27,24 @@ parser.add_argument(
     help="A list of characters to match",
 )
 parser.add_argument(
-    "-tess",
-    "--tessdata",
-    default="C:/Program Files/Tesseract-OCR/tessdata",
-    help="Location of tesseract for OCR",
+    "-contain",
+    "--contain",
+    default=1200,
+    type=int,
+    help="Target output max dimension of image",
 )
 parser.add_argument(
-    "-dpi",
-    "--dpi",
-    default=150,
+    "-conf",
+    "--confidence",
+    default=90,
     type=int,
-    help="Resolution of image",
+    help="Minimum OCR confidence",
+)
+parser.add_argument(
+    "-tess",
+    "--tesscmd",
+    default="C:/Program Files/Tesseract-OCR/tesseract.exe",
+    help="Location of tesseract for OCR",
 )
 parser.add_argument(
     "-out",
@@ -54,61 +60,25 @@ parser.add_argument(
 )
 
 
-def extract_image(page, page_number, args):
-    """Output page as an image"""
-    image_filename = f"{args.outputdir}{page_number}.jpg"
-    if os.path.isfile(image_filename):
-        return
-
-    pix = page.get_pixmap(dpi=args.dpi)  # render page to an image
-    pix.save(image_filename)
-
-
-def extract_text(page, page_number, args):
-    """Perform OCR on a page and output char list"""
-    data_filename = f"{args.outputdir}{page_number}.json"
-    if os.path.isfile(data_filename):
-        return
-
-    # Extract text via OCR (Tesseract)
-    tp = page.get_textpage_ocr(tessdata=args.tessdata)
-    data = tp.extractRAWDICT()
-    w, h = (data["width"], data["height"])
-    match_chars = set([char.strip() for char in args.match.split(",")])
-
-    # Retrieve just the chars we need
-    chars = []
-    for block in data["blocks"]:
-        for line in block["lines"]:
-            for span in line["spans"]:
-                for char in span["chars"]:
-                    if char["c"] in match_chars:
-                        chars.append({"c": char["c"], "bbox": char["bbox"]})
-    # print(" ".join([char["c"] for char in chars]))
-    # break
-
-    # Write data to file
-    page_data = {"width": w, "height": h, "chars": chars}
-    write_json(data_filename, page_data)
-
-
 def main(args):
+    """The main and only function"""
+
+    tmpdir = f"tmp/{args.outputdir}"
     # Create output directories
-    make_directories(args.outputdir)
+    make_directories([args.outputdir, tmpdir])
 
     # Clear output directory if desired
     if args.clean:
         clear_directory(args.outputdir)
 
-    # Read PDF
-    doc = pymupdf.open(args.input)
-    print(f"Opened {args.input} with {doc.page_count} pages")
+    manifest = read_json(args.input)
+    canvases = manifest["sequences"][0]["canvases"]
 
     # parse pages
     pages = []
 
     if args.pages == "all":
-        pages = range(1, doc.page_count + 1)
+        pages = range(1, len(canvases) + 1)
 
     else:
         parts = [part.strip().split("-") for part in args.pages.split(",")]
@@ -120,20 +90,38 @@ def main(args):
                 for page in range(int(start), int(end) + 1):
                     pages.append(page)
 
-    page_count = len(pages)
-    pbar = tqdm(total=page_count)
-    pages = set(pages)
-    for i, page in enumerate(doc):  # iterate the document pages
-        page_number = i + 1
-        if not (page_number in pages):
-            continue
+    match_chars = [char.strip() for char in args.match.split(",")]
 
-        extract_text(page, page_number, args)
-        extract_image(page, page_number, args)
-        pbar.update(1)
+    for page in tqdm(pages):
+        canvas = canvases[page - 1]
+        img_url = canvas["images"][0]["resource"]["@id"]
 
-    pbar.close()
-    doc.close()
+        # Download and read image
+        tmp_fn = f"{tmpdir}{page}.jpg"
+        if not os.path.isfile(tmp_fn):
+            download_file(img_url, tmp_fn)
+        im = Image.open(tmp_fn)
+
+        # Process image
+        im_fn = f"{args.outputdir}{page}.jpg"
+        if not os.path.isfile(im_fn):
+            resized = contain_image(im, args.contain)
+            resized.save(im_fn)
+
+        # Process text
+        data_fn = f"{args.outputdir}{page}.json"
+        if not os.path.isfile(data_fn):
+            w, h = im.size
+            data = {"width": w, "height": h, "chars": []}
+            _words, chars = extract_letters(
+                im, match_chars, args.tesscmd, args.confidence
+            )
+            for char, x0, y0, x1, y1, _conf in chars:
+                clip = im.crop((x0, y0, x1, y1))
+                clip_largest_segment = get_largest_mask_segment(clip)
+                svg = image_to_svg(clip_largest_segment, turdsize=5)
+                data["chars"].append({"c": char, "bbox": [x0, y0, x1, y1], "svg": svg})
+            write_json(data_fn, data)
 
     manifest = {"pages": list(pages)}
     manifest_filename = f"{args.outputdir}manifest.json"
