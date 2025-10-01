@@ -1,3 +1,5 @@
+import MathHelper from './MathHelper.js';
+
 export default class Book {
   constructor(options = {}) {
     const defaults = {
@@ -9,8 +11,11 @@ export default class Book {
 
   async init() {
     this.$el = document.getElementById('book');
+    this.$circle = document.getElementById('circle');
+    this.$page = false;
     this.manifest = await this.loadManifest();
     this.pageData = false;
+    this.offset = { x: 0, y: 0 };
     this.loadPage(0);
   }
 
@@ -35,21 +40,27 @@ export default class Book {
     chars.forEach((char, i) => {
       const { c, bbox, svg } = char;
       const [x0, y0, x1, y1] = bbox;
+      const x = x0 / width;
+      const y = y0 / height;
+      const w = (x1 - x0) / width;
+      const h = (y1 - y0) / height;
       const style = {};
-      style.left = `${(x0 / width) * 100}%`;
-      style.top = `${(y0 / height) * 100}%`;
-      style.width = `${((x1 - x0) / width) * 100}%`;
-      style.height = `${((y1 - y0) / height) * 100}%`;
+      style.left = `${x * 100}%`;
+      style.top = `${y * 100}%`;
+      style.width = `${w * 100}%`;
+      style.height = `${h * 100}%`;
+      this.pageData.chars[i].nBbox = { x, y, w, h };
       const styleString = Object.entries(style)
         .map((keyVal) => `${keyVal[0]}: ${keyVal[1]};`)
         .join(' ');
-      html += `<div class="letter" style="${styleString}" data-index="${i}">`;
+      html += `<div id="letter-${i}" class="letter" style="${styleString}" data-index="${i}">`;
       html += `<span class="visually-hidden">${c}</span>`;
       html += svg;
       html += '</div>';
     });
     html += '</div>'; // end page
     this.$el.innerHTML = html;
+    this.$page = document.getElementById('page');
   }
 
   async loadManifest() {
@@ -76,14 +87,46 @@ export default class Book {
     this.$el.style.backgroundImage = `url(data/${source}/${page}.jpg)`;
     this.loadLetters();
     this.onResize();
+    this.onDrag(this.offset);
     return pageData;
   }
 
+  onDrag(offset) {
+    this.offset = offset;
+    const { $circle, $page, pageData } = this;
+
+    if (!$page || !pageData) return;
+
+    // determine which letters are visible within the circle
+    const pr = $page.getBoundingClientRect();
+    const cr = $circle.getBoundingClientRect();
+    const radius = cr.width * 0.5;
+    const center = {
+      x: pr.width * 0.5 - offset.x,
+      y: pr.height * 0.5 - offset.y,
+    };
+    pageData.chars.forEach((char, i) => {
+      const { x, y, w, h } = char.nBbox;
+      const bbox = {
+        x: x * pr.width,
+        y: y * pr.height,
+        w: w * pr.width,
+        h: h * pr.height,
+      };
+      const cx = bbox.x + bbox.w * 0.5;
+      const cy = bbox.y + bbox.h * 0.5;
+      const distance = MathHelper.distance(center.x, center.y, cx, cy);
+      const isActive = distance < radius;
+      const $char = document.getElementById(`letter-${i}`);
+      if (isActive) $char.classList.add('active');
+      else $char.classList.remove('active');
+    });
+  }
+
   onResize() {
-    const $page = document.getElementById('page');
-    const { pageData, $el } = this;
+    const { $el, $page, pageData } = this;
     if (!$page && !pageData) return;
-    const { width, height, chars } = this.pageData;
+    const { width, height } = this.pageData;
     const outer = $el.getBoundingClientRect();
     if (outer.height <= 0) return;
     const outerRatio = outer.width / outer.height;

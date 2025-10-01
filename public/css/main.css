@@ -173,6 +173,10 @@ li {
   height: 100%;
   top: 0;
   left: 0;
+  display: none;
+}
+.letter.active svg {
+  display: block;
 }
 
 .visually-hidden {
