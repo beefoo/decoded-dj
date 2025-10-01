@@ -6,7 +6,6 @@ export default class Book {
       debug: false,
     };
     this.options = Object.assign(defaults, options);
-    this.init();
   }
 
   async init() {
@@ -16,7 +15,17 @@ export default class Book {
     this.manifest = await this.loadManifest();
     this.pageData = false;
     this.offset = { x: 0, y: 0 };
-    this.loadPage(0);
+    const pageData = await this.loadPage(0);
+    return pageData;
+  }
+
+  getActiveLetters() {
+    if (!this.pageData) return [];
+    return this.pageData.chars
+      .filter((char) => char.isActive)
+      .map((char) => {
+        return Object.assign({ c: char.c }, char.nBbox);
+      });
   }
 
   async loadJSON(url) {
@@ -84,6 +93,9 @@ export default class Book {
     if (!pageData) return false;
     console.log('Loaded page data', pageData);
     this.pageData = pageData;
+    this.pageData.chars.forEach((_char, i) => {
+      this.pageData.chars[i].isActive = false;
+    });
     this.$el.style.backgroundImage = `url(data/${source}/${page}.jpg)`;
     this.loadLetters();
     this.onResize();
@@ -100,7 +112,7 @@ export default class Book {
     // determine which letters are visible within the circle
     const pr = $page.getBoundingClientRect();
     const cr = $circle.getBoundingClientRect();
-    const radius = cr.width * 0.5;
+    const radius = cr.width * 0.5 * 0.9;
     const center = {
       x: pr.width * 0.5 - offset.x,
       y: pr.height * 0.5 - offset.y,
@@ -120,6 +132,7 @@ export default class Book {
       const $char = document.getElementById(`letter-${i}`);
       if (isActive) $char.classList.add('active');
       else $char.classList.remove('active');
+      this.pageData.chars[i].isActive = isActive;
     });
   }
 

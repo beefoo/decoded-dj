@@ -2,10 +2,14 @@
   "name": "decoded-dj",
   "description": "Generate grooves hidden in old texts",
   "scripts": {
+    "build-tonal": "esbuild node_modules/tonal/dist/index.d.ts --bundle --outfile=public/js/vendor/Tonal.js --format=esm",
+    "build-tone": "esbuild node_modules/tone/build/esm/index.d.ts --bundle --outfile=public/js/vendor/Tone.js --format=esm",
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "tonal": "^6.4.2",
+    "tone": "^15.1.22"
   },
   "devDependencies": {
     "esbuild": "^0.25.5",
