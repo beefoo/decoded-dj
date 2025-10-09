@@ -38,8 +38,8 @@ export default class App {
 
   loadSequence() {
     const letters = this.book.getActiveLetters();
-    const notes = this.generator.lettersToNotes(letters);
-    console.log(notes);
+    const noteSeq = this.generator.getSequenceFromLetters(letters);
+    console.log(noteSeq);
   }
 
   onDragGlass(pointer) {
