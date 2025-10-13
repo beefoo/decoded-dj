@@ -15,6 +15,7 @@ export default class Book {
     this.manifest = await this.loadManifest();
     this.pageData = false;
     this.offset = { x: 0, y: 0 };
+    this.center = { x: 0.5, y: 0.5 };
     const pageData = await this.loadPage(0);
     return pageData;
   }
@@ -134,6 +135,7 @@ export default class Book {
       else $char.classList.remove('active');
       this.pageData.chars[i].isActive = isActive;
     });
+    this.center = center;
   }
 
   onResize() {

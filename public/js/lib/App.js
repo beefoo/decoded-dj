@@ -38,7 +38,10 @@ export default class App {
 
   loadSequence() {
     const letters = this.book.getActiveLetters();
-    const noteSeq = this.generator.getSequenceFromLetters(letters);
+    const noteSeq = this.generator.getSequenceFromLetters(
+      letters,
+      this.book.center,
+    );
     console.log(noteSeq);
   }
 

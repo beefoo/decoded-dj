@@ -82,14 +82,18 @@ export default class MusicalScale {
       notes: [],
     };
     // load the notes
-    let keys = this.dict.keys;
+    const { keys } = this.dict;
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i];
       const idx = (offset + step) % keys.length;
       // relative octave to base
       const rel_octave = offset + step > keys.length - 1 ? octave + 1 : octave;
       // define the note
-      chord.notes.push({ note: keys[idx], rel_octave: rel_octave });
+      chord.notes.push({
+        note: keys[idx],
+        note1: keys[idx].slice(0, 1),
+        rel_octave: rel_octave,
+      });
     }
     return chord;
   }
