@@ -17,7 +17,9 @@ export default class App {
   async init() {
     this.table = new Table();
     this.book = new Book(Object.assign({}, this.options));
-    this.sequencer = new Sequencer();
+    this.sequencer = new Sequencer({
+      onStep: (time, note) => this.onSequencerStep(time, note),
+    });
     this.synth = new Synth();
     this.generator = new NoteGenerator();
     const pageData = await this.book.init();
@@ -42,7 +44,7 @@ export default class App {
       letters,
       this.book.center,
     );
-    console.log(noteSeq);
+    this.sequencer.setSequences(noteSeq);
   }
 
   onDragGlass(pointer) {
@@ -55,5 +57,13 @@ export default class App {
   onResize() {
     this.table.onResize();
     this.book.onResize();
+  }
+
+  onSequencerStep(time, note) {
+    this.synth.play(`${note.note}${note.octave}`, time);
+    this.sequencer.scheduleDraw(() => {
+      note.$el.classList.add('active');
+      setTimeout(() => note.$el.classList.remove('active'), 500);
+    }, time);
   }
 }

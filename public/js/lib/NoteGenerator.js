@@ -23,11 +23,11 @@ export default class NoteGenerator {
   getSequenceFromLetters(letters, center) {
     const { baseOctave, maxNotes } = this.options;
     const pool = letters.map((letter, i) => {
-      const { c, x, y } = letter;
+      const { c, x, y, $el } = letter;
       return {
         x,
         y,
-        index: i,
+        $el,
         note: c.toUpperCase(),
       };
     });

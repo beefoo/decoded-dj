@@ -1,36 +1,39 @@
+import * as Tone from '../vendor/Tone.js';
+
 export default class Sequencer {
   constructor(options = {}) {
     const defaults = {
       audioContext: false,
+      bpm: 120,
       debug: false,
-      duration: 2.0, // in seconds
-      sequence: [],
+      onStep: (time, note) => {
+        console.log(time, note);
+      },
+      patternDirection: 'up',
+      sequences: [],
     };
     this.options = Object.assign(defaults, options);
     this.init();
   }
 
   init() {
-    const { duration, sequence } = this.options;
+    const { bpm, sequences } = this.options;
     this.$playButton = document.getElementById('play-button');
-    this.iteration = -1;
-    this.ctx = this.options.audioContext || new AudioContext();
-    this.ctx.suspend();
+
+    this.pattern = false;
     this.isPlaying = false;
-    this.setDuration(duration);
-    this.setSequence(sequence);
+    this.toneTransport = Tone.getContext().transport;
+    this.toneDraw = Tone.getContext().draw;
+    this.setBPM(bpm);
+
+    if (sequences.length > 0) {
+      this.setSequences(sequences);
+    }
     this.loadListeners();
   }
 
-  add(items) {
-    items.forEach((_item, i) => {
-      items[i].lastIterationPlayed = -1;
-    });
-    this.sequence.push(...items);
-  }
-
   isReady() {
-    return this.sequence.length > 0;
+    return this.pattern !== false;
   }
 
   loadListeners() {
@@ -40,54 +43,57 @@ export default class Sequencer {
 
   pause() {
     this.isPlaying = false;
-    this.ctx.suspend();
+    this.toneTransport.pause();
   }
 
   play() {
-    this.resetSequence();
     this.isPlaying = true;
-    this.iteration = -1;
-    this.ctx.resume();
-    this.startedAt = this.ctx.currentTime;
+    this.toneTransport.start();
   }
 
-  removeGroup(groupName) {
-    this.sequence = this.sequence.filter(
-      (step) => !('group' in step && step.group === groupName),
-    );
+  scheduleDraw(callback, time) {
+    this.toneDraw.schedule(callback, time);
   }
 
-  resetSequence() {
-    this.sequence.forEach((_step, i) => {
-      this.sequence[i].lastIterationPlayed = -1;
-    });
+  setBPM(bpm) {
+    this.toneTransport.bpm.value = bpm;
   }
 
-  setDuration(duration) {
-    this.duration = duration;
+  setPatternDirection(patternDirection) {
+    if (!this.pattern) return;
+    this.pattern.set({ pattern: patternDirection });
   }
 
   setSequence(sequence) {
-    this.sequence = sequence;
-    this.resetSequence();
+    const { onStep, patternDirection } = this.options;
+    const interval = `${sequence.length}n`;
+    if (!this.pattern) {
+      this.pattern = new Tone.Pattern(
+        (time, note) => {
+          this.options.onStep(time, note);
+        },
+        sequence,
+        patternDirection,
+      ).start(0);
+      this.pattern.set({ interval });
+    } else {
+      this.pattern.set({
+        values: sequence,
+        interval,
+      });
+    }
   }
 
-  step() {
-    if (!this.isPlaying || !this.isReady()) return;
-    const { duration } = this;
-    const now = this.ctx.currentTime - this.startedAt;
-    this.sequence.forEach((step, i) => {
-      const { start, lastIterationPlayed, latency, task } = step;
-      const later = now + latency;
-      const iteration = Math.floor(later / duration);
-      const progress = later % duration;
-
-      if (lastIterationPlayed >= iteration) return;
-      if (progress >= start) {
-        task(this.startedAt + later, step);
-        this.sequence[i].lastIterationPlayed = iteration;
-      }
-    });
+  setSequences(sequences) {
+    this.sequences = sequences;
+    this.currentSequenceIndex = 0;
+    if (sequences.length > 0)
+      this.setSequence(this.sequences[this.currentSequenceIndex]);
+    else {
+      this.pattern = false;
+      this.$playButton.classList.remove('playing');
+      this.pause();
+    }
   }
 
   togglePlay() {

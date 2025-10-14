@@ -25,7 +25,7 @@ export default class Book {
     return this.pageData.chars
       .filter((char) => char.isActive)
       .map((char) => {
-        return Object.assign({ c: char.c }, char.nBbox);
+        return Object.assign({ c: char.c, $el: char.$el }, char.nBbox);
       });
   }
 
@@ -70,6 +70,10 @@ export default class Book {
     });
     html += '</div>'; // end page
     this.$el.innerHTML = html;
+    // register HTML elements for highlighting
+    chars.forEach((_char, i) => {
+      this.pageData.chars[i].$el = document.getElementById(`letter-${i}`);
+    });
     this.$page = document.getElementById('page');
   }
 
@@ -131,8 +135,8 @@ export default class Book {
       const distance = MathHelper.distance(center.x, center.y, cx, cy);
       const isActive = distance < radius;
       const $char = document.getElementById(`letter-${i}`);
-      if (isActive) $char.classList.add('active');
-      else $char.classList.remove('active');
+      // if (isActive) $char.classList.add('active');
+      // else $char.classList.remove('active');
       this.pageData.chars[i].isActive = isActive;
     });
     this.center = center;

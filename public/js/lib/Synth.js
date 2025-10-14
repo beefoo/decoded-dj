@@ -14,4 +14,8 @@ export default class Synth {
     const ctx = Tone.getContext();
     console.log(ctx);
   }
+
+  play(note, time) {
+    console.log(note, time);
+  }
 }

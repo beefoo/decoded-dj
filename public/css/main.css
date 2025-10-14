@@ -157,6 +157,10 @@ li {
   background-position: center center;
   background-size: contain;
 }
+#controls {
+  position: absolute;
+  z-index: 100;
+}
 #page {
   position: absolute;
 }
