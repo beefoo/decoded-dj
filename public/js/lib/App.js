@@ -15,6 +15,7 @@ export default class App {
   }
 
   async init() {
+    this.wasPlayingBeforeBlur = false;
     this.table = new Table();
     this.book = new Book(Object.assign({}, this.options));
     this.sequencer = new Sequencer({
@@ -32,10 +33,13 @@ export default class App {
       target: 'glass',
     });
     this.loadListeners();
+    this.isReady = true;
   }
 
   loadListeners() {
     window.addEventListener('resize', (_event) => this.onResize());
+    window.addEventListener('blur', (_event) => this.onBlur());
+    window.addEventListener('focus', (_event) => this.onFocus());
   }
 
   loadSequence() {
@@ -47,6 +51,18 @@ export default class App {
     this.sequencer.setSequences(noteSeq);
   }
 
+  onBlur() {
+    if (!this.isReady) return;
+
+    if (this.sequencer.isPlaying) {
+      this.wasPlayingBeforeBlur = true;
+      this.sequencer.pause();
+      return;
+    }
+
+    this.wasPlayingBeforeBlur = false;
+  }
+
   onDragGlass(pointer) {
     if (!pointer.isPrimary) return;
     this.table.onDrag(pointer);
@@ -54,16 +70,32 @@ export default class App {
     this.loadSequence();
   }
 
+  onFocus() {
+    const { wasPlayingBeforeBlur } = this;
+    this.wasPlayingBeforeBlur = false;
+    if (!this.isReady || this.sequencer.isPlaying) return;
+
+    if (wasPlayingBeforeBlur) this.sequencer.play();
+  }
+
   onResize() {
     this.table.onResize();
     this.book.onResize();
   }
 
-  onSequencerStep(time, note) {
-    this.synth.play(`${note.note}${note.octave}`, time, note.duration);
+  onSequencerStep(time, noteData) {
+    const { note, octave, $el, index } = noteData;
+    const duration = '8n';
+    this.synth.play(`${note}${octave}`, time, duration);
+    // add bass every fourth note
+    if (index % 4 === 0) {
+      const bassOctave = Math.max(octave - 2, 0);
+      const bassDuration = '2n';
+      this.synth.play(`${note}${bassOctave}`, time, bassDuration);
+    }
     this.sequencer.scheduleDraw(() => {
-      note.$el.classList.add('active');
-      setTimeout(() => note.$el.classList.remove('active'), 500);
+      $el.classList.remove('playing');
+      setTimeout(() => $el.classList.add('playing'), 1);
     }, time);
   }
 }

@@ -19,6 +19,17 @@
   --secondary-darkest: #755c00;
 }
 
+@keyframes highlight {
+  from {
+    transform: scale3d(1, 1, 1) translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: scale3d(2, 2, 2) translate3d(0, -25%, 0);
+    opacity: 0;
+  }
+}
+
 html {
   font: 30px monospace;
   font-family: monospace;
@@ -170,6 +181,7 @@ li {
   align-items: center;
   justify-content: center;
   text-align: center;
+  transform-origin: center center;
 }
 .letter svg {
   position: absolute;
@@ -181,6 +193,10 @@ li {
 }
 .letter.active svg {
   display: block;
+}
+.letter.active.playing {
+  animation: highlight 0.5s ease-in-out;
+  animation-fill-mode: none;
 }
 
 .visually-hidden {

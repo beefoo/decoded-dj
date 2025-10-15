@@ -42,10 +42,13 @@ export default class NoteGenerator {
       let chordMatches = [];
       // first, get the letters that match the notes in this chord
       notes.forEach((n) => {
-        const { note1, rel_octave } = n;
+        const { note, note1, rel_octave } = n;
         const matches = pool.filter((item) => item.note === note1);
         if (matches.length <= 0) return;
-        matches.forEach((_item, i) => (matches[i].relOctave = rel_octave));
+        matches.forEach((_item, i) => {
+          matches[i].note = note;
+          matches[i].relOctave = rel_octave;
+        });
         chordMatches = chordMatches.concat(matches);
       });
       if (chordMatches.length <= 0) return;
@@ -94,10 +97,8 @@ export default class NoteGenerator {
       }
       // sort by x
       chordMatches.sort((a, b) => a.x - b.x);
-      // assign durations; make every 4th note a whole note
-      chordMatches.forEach(
-        (_m, i) => (chordMatches[i].duration = i % 4 === 0 ? '2n' : '8n'),
-      );
+      // assign indices
+      chordMatches.forEach((_m, i) => (chordMatches[i].index = i));
       // console.log(chordMatches.map((m) => `${m.note}${m.octave}`));
       sequence.push(chordMatches);
     });

@@ -43,11 +43,13 @@ export default class Sequencer {
 
   pause() {
     this.isPlaying = false;
+    this.$playButton.classList.remove('playing');
     this.toneTransport.pause();
   }
 
   play() {
     this.isPlaying = true;
+    this.$playButton.classList.add('playing');
     this.toneTransport.start();
   }
 
@@ -84,6 +86,11 @@ export default class Sequencer {
         playbackRate,
       });
     }
+    // update UI
+    document
+      .querySelectorAll('.letter')
+      .forEach(($el) => $el.classList.remove('active'));
+    sequence.forEach((note) => note.$el.classList.add('active'));
   }
 
   setSequences(sequences) {
@@ -93,16 +100,14 @@ export default class Sequencer {
       this.setSequence(this.sequences[this.currentSequenceIndex]);
     else {
       this.pattern = false;
-      this.$playButton.classList.remove('playing');
       this.pause();
     }
   }
 
   togglePlay() {
     if (!this.isReady()) return;
-    this.$playButton.classList.toggle('playing');
     const isPlaying = this.$playButton.classList.contains('playing');
-    if (isPlaying) this.play();
-    else this.pause();
+    if (isPlaying) this.pause();
+    else this.play();
   }
 }
