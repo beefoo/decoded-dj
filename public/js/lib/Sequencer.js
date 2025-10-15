@@ -67,6 +67,7 @@ export default class Sequencer {
   setSequence(sequence) {
     const { onStep, patternDirection } = this.options;
     const interval = `${sequence.length}n`;
+    const playbackRate = Math.floor(12 / sequence.length);
     if (!this.pattern) {
       this.pattern = new Tone.Pattern(
         (time, note) => {
@@ -75,11 +76,12 @@ export default class Sequencer {
         sequence,
         patternDirection,
       ).start(0);
-      this.pattern.set({ interval });
+      this.pattern.set({ interval, playbackRate });
     } else {
       this.pattern.set({
         values: sequence,
         interval,
+        playbackRate,
       });
     }
   }

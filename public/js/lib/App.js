@@ -60,7 +60,7 @@ export default class App {
   }
 
   onSequencerStep(time, note) {
-    this.synth.play(`${note.note}${note.octave}`, time);
+    this.synth.play(`${note.note}${note.octave}`, time, note.duration);
     this.sequencer.scheduleDraw(() => {
       note.$el.classList.add('active');
       setTimeout(() => note.$el.classList.remove('active'), 500);

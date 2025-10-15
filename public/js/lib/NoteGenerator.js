@@ -1,3 +1,4 @@
+import MathHelper from './MathHelper.js';
 import MusicalScale from '../vendor/MusicalScale.js';
 
 export default class NoteGenerator {
@@ -8,6 +9,7 @@ export default class NoteGenerator {
       key: 'G',
       maxNotes: 12,
       mode: 'lydian',
+      roundToNearest: 4,
     };
     this.options = Object.assign(defaults, options);
     this.init();
@@ -21,7 +23,7 @@ export default class NoteGenerator {
   }
 
   getSequenceFromLetters(letters, center) {
-    const { baseOctave, maxNotes } = this.options;
+    const { baseOctave, maxNotes, roundToNearest } = this.options;
     const pool = letters.map((letter, i) => {
       const { c, x, y, $el } = letter;
       return {
@@ -56,6 +58,14 @@ export default class NoteGenerator {
         );
         chordMatches = chordMatches.slice(0, maxNotes);
       }
+      // round to nearest # of notes
+      if (chordMatches.length % roundToNearest > 0) {
+        const newLength = MathHelper.floorToNearest(
+          chordMatches.length,
+          roundToNearest,
+        );
+        chordMatches = chordMatches.slice(0, newLength);
+      }
       // sort by vertical position (lowest first)
       chordMatches.sort((a, b) => b.y - a.y);
       // assign octaves to the notes
@@ -80,10 +90,14 @@ export default class NoteGenerator {
       const centerOctave = Math.ceil(currentOctave / 2);
       if (centerOctave < baseOctave) {
         const delta = baseOctave - centerOctave;
-        chordMatches.forEach((m, i) => (chordMatches[i].octave += delta));
+        chordMatches.forEach((_m, i) => (chordMatches[i].octave += delta));
       }
-      // finally, sort by x
+      // sort by x
       chordMatches.sort((a, b) => a.x - b.x);
+      // assign durations; make every 4th note a whole note
+      chordMatches.forEach(
+        (_m, i) => (chordMatches[i].duration = i % 4 === 0 ? '2n' : '8n'),
+      );
       // console.log(chordMatches.map((m) => `${m.note}${m.octave}`));
       sequence.push(chordMatches);
     });
