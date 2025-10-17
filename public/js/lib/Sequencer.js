@@ -20,6 +20,7 @@ export default class Sequencer {
     const { bpm, sequences } = this.options;
     this.$playButton = document.getElementById('play-button');
 
+    this.firstPlay = true;
     this.pattern = false;
     this.isPlaying = false;
     this.toneTransport = Tone.getContext().transport;
@@ -48,6 +49,10 @@ export default class Sequencer {
   }
 
   play() {
+    if (this.firstPlay) {
+      this.firstPlay = false;
+      Tone.start();
+    }
     this.isPlaying = true;
     this.$playButton.classList.add('playing');
     this.toneTransport.start();

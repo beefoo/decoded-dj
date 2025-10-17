@@ -85,13 +85,13 @@ export default class App {
 
   onSequencerStep(time, noteData) {
     const { note, octave, $el, index } = noteData;
-    const duration = '8n';
+    const duration = '16n';
     this.synth.play(`${note}${octave}`, time, duration);
     // add bass every fourth note
     if (index % 4 === 0) {
-      const bassOctave = Math.max(octave - 2, 0);
+      const bassOctave = Math.max(octave - 4, 1);
       const bassDuration = '2n';
-      this.synth.play(`${note}${bassOctave}`, time, bassDuration);
+      this.synth.play(`${note}${bassOctave}`, time, bassDuration, 'bass');
     }
     this.sequencer.scheduleDraw(() => {
       $el.classList.remove('playing');

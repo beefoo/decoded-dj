@@ -5,7 +5,7 @@ export default class NoteGenerator {
   constructor(options = {}) {
     const defaults = {
       debug: false,
-      baseOctave: 3,
+      baseOctave: 5,
       key: 'G',
       maxNotes: 12,
       mode: 'lydian',
