@@ -17,7 +17,14 @@ export default class App {
   async init() {
     this.wasPlayingBeforeBlur = false;
     this.table = new Table();
-    this.book = new Book(Object.assign({}, this.options));
+    this.book = new Book(
+      Object.assign(
+        {
+          onPaginate: () => this.onBookPaginate(),
+        },
+        this.options,
+      ),
+    );
     this.sequencer = new Sequencer({
       onStep: (time, note) => this.onSequencerStep(time, note),
     });
@@ -64,6 +71,11 @@ export default class App {
     }
 
     this.wasPlayingBeforeBlur = false;
+  }
+
+  onBookPaginate() {
+    if (!this.isReady) return;
+    this.loadSequence();
   }
 
   onFocus() {

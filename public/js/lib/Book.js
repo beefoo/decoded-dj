@@ -4,6 +4,7 @@ export default class Book {
   constructor(options = {}) {
     const defaults = {
       debug: false,
+      onPaginate: () => {},
     };
     this.options = Object.assign(defaults, options);
   }
@@ -16,7 +17,9 @@ export default class Book {
     this.pageData = false;
     this.offset = { x: 0, y: 0 };
     this.center = { x: 0.5, y: 0.5 };
-    const pageData = await this.loadPage(0);
+    this.pageIndex = 0;
+    const pageData = await this.loadPage(this.pageIndex);
+    this.loadListeners();
     return pageData;
   }
 
@@ -42,6 +45,14 @@ export default class Book {
       console.error(error.message);
       return false;
     }
+  }
+
+  loadListeners() {
+    const $pagePrev = document.getElementById('page-prev');
+    const $pageNext = document.getElementById('page-next');
+
+    $pagePrev.addEventListener('click', (_event) => this.pagePrev());
+    $pageNext.addEventListener('click', (_event) => this.pageNext());
   }
 
   loadLetters() {
@@ -90,6 +101,7 @@ export default class Book {
 
   async loadPage(index) {
     if (!this.manifest) return;
+    this.pageIndex = index;
     const { source } = this.options;
     const page = this.manifest.pages[index];
     const dataURL = `data/${source}/${page}.json`;
@@ -134,7 +146,7 @@ export default class Book {
       const cy = bbox.y + bbox.h * 0.5;
       const distance = MathHelper.distance(center.x, center.y, cx, cy);
       const isActive = distance < radius;
-      const $char = document.getElementById(`letter-${i}`);
+      // const $char = document.getElementById(`letter-${i}`);
       // if (isActive) $char.classList.add('active');
       // else $char.classList.remove('active');
       this.pageData.chars[i].isActive = isActive;
@@ -171,5 +183,25 @@ export default class Book {
       .map((keyVal) => `${keyVal[0]}: ${keyVal[1]}%;`)
       .join(' ');
     $page.style.cssText = styleString;
+  }
+
+  async pageNext() {
+    if (!this.manifest) return;
+    let { pageIndex } = this;
+    pageIndex += 1;
+    if (pageIndex >= this.manifest.pages.length) pageIndex = 0;
+    const pageData = await this.loadPage(pageIndex);
+    this.options.onPaginate();
+    return pageData;
+  }
+
+  async pagePrev() {
+    if (!this.manifest) return;
+    let { pageIndex } = this;
+    pageIndex -= 1;
+    if (pageIndex < 0) pageIndex = this.manifest.pages.length - 1;
+    const pageData = await this.loadPage(pageIndex);
+    this.options.onPaginate();
+    return pageData;
   }
 }
