@@ -62,7 +62,10 @@ export default class NoteGenerator {
         chordMatches = chordMatches.slice(0, maxNotes);
       }
       // round to nearest # of notes
-      if (chordMatches.length % roundToNearest > 0) {
+      if (
+        chordMatches.length >= 2 &&
+        chordMatches.length % roundToNearest > 0
+      ) {
         const newLength = MathHelper.floorToNearest(
           chordMatches.length,
           roundToNearest,
@@ -71,6 +74,7 @@ export default class NoteGenerator {
       }
       // sort by vertical position (lowest first)
       chordMatches.sort((a, b) => b.y - a.y);
+      if (chordMatches.length <= 0) return;
       // assign octaves to the notes
       // console.log(notes.map((n) => n.note1));
       // console.log(chordMatches.map((m) => m.note));

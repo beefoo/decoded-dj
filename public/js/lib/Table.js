@@ -27,7 +27,7 @@ export default class Table {
 
   onDrag(pointer) {
     const { w, h } = this.size;
-    const [xmin, ymin, xmax, ymax] = [-25, -25, 25, 25];
+    const [xmin, ymin, xmax, ymax] = [-16, -16, 16, 16];
     const { delta } = pointer;
     this.offset.x = MathHelper.clamp(
       this.offset.x + (delta.x / w) * 100,

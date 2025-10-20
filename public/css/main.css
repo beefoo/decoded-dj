@@ -30,6 +30,21 @@
   }
 }
 
+@keyframes cycle {
+  0% {
+    fill: var(--secondary-light);
+    transform: scale3d(1, 1, 1);
+  }
+  50% {
+    fill: var(--secondary-lighter);
+    transform: scale3d(1.25, 1.25, 1);
+  }
+  100% {
+    fill: var(--secondary-light);
+    transform: scale3d(1, 1, 1);
+  }
+}
+
 html {
   font: 30px monospace;
   font-family: monospace;
@@ -106,7 +121,7 @@ li {
 }
 
 #table {
-  background: url(../img/velvet.jpg);
+  background: url(../img/velvet-highres.jpg) #530c1c;
   background-position: center center;
   background-size: cover;
   position: absolute;
@@ -137,8 +152,8 @@ li {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.75) inset;
-  background: rgba(0, 0, 0, 0.25);
+  /* box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.75) inset;
+  background: rgba(0, 0, 0, 0.25); */
   border-radius: 4px;
   background-repeat: no-repeat;
   background-position: center center;
@@ -167,10 +182,46 @@ li {
   background: url(../img/pendant.png) no-repeat;
   background-position: center center;
   background-size: contain;
+  cursor: move;
 }
-#controls {
+#play-button {
   position: absolute;
   z-index: 100;
+  width: 37%;
+  height: 37%;
+  left: 50%;
+  top: 50%;
+  margin-left: -18%;
+  margin-top: -18%;
+  border-radius: 50%;
+  display: block;
+  background: none;
+  cursor: pointer;
+  border: none;
+}
+#play-button svg {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  top: 50%;
+  left: 50%;
+  margin-left: -25%;
+  margin-top: -25%;
+}
+#play-button path {
+  animation: cycle 5s infinite;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.7));
+  stroke: var(--secondary-dark);
+  stroke-width: 1px;
+  transform-origin: center center;
+}
+#play-button:hover path,
+#play-button:focus-visible path,
+#play-button:focus path {
+  stroke: var(--secondary-lightest);
+}
+#play-button.playing svg {
+  display: none;
 }
 #page {
   position: absolute;

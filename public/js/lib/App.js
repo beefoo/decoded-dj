@@ -28,7 +28,10 @@ export default class App {
     this.loadSequence();
     this.pointers = new PointerManager({
       onDrag: (pointer) => {
-        this.onDragGlass(pointer);
+        this.onGlassDrag(pointer);
+      },
+      onTap: (pointer) => {
+        this.onGlassTap(pointer);
       },
       target: 'glass',
     });
@@ -63,19 +66,24 @@ export default class App {
     this.wasPlayingBeforeBlur = false;
   }
 
-  onDragGlass(pointer) {
-    if (!pointer.isPrimary) return;
-    this.table.onDrag(pointer);
-    this.book.onDrag(this.table.getOffset());
-    this.loadSequence();
-  }
-
   onFocus() {
     const { wasPlayingBeforeBlur } = this;
     this.wasPlayingBeforeBlur = false;
     if (!this.isReady || this.sequencer.isPlaying) return;
 
     if (wasPlayingBeforeBlur) this.sequencer.play();
+  }
+
+  onGlassDrag(pointer) {
+    if (!pointer.isPrimary) return;
+    this.table.onDrag(pointer);
+    this.book.onDrag(this.table.getOffset());
+    this.loadSequence();
+  }
+
+  onGlassTap(pointer) {
+    if (!pointer.isPrimary) return;
+    this.sequencer.togglePlay();
   }
 
   onResize() {
@@ -89,7 +97,7 @@ export default class App {
     this.synth.play(`${note}${octave}`, time, duration);
     // add bass every fourth note
     if (index % 4 === 0) {
-      const bassOctave = Math.max(octave - 4, 1);
+      const bassOctave = Math.max(octave - 4, 2);
       const bassDuration = '2n';
       this.synth.play(`${note}${bassOctave}`, time, bassDuration, 'bass');
     }
