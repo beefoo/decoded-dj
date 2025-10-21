@@ -108,7 +108,7 @@ export default class Book {
 
     const pageData = await this.loadJSON(dataURL);
     if (!pageData) return false;
-    console.log('Loaded page data', pageData);
+    // console.log('Loaded page data', pageData);
     this.pageData = pageData;
     this.pageData.chars.forEach((_char, i) => {
       this.pageData.chars[i].isActive = false;

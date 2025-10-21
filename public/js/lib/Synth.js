@@ -93,6 +93,10 @@ export default class Synth {
   play(note, time, duration = '8n', instrument = 'treb') {
     const ctx = Tone.getContext();
     if (ctx.state !== 'running') return;
-    this.synth[instrument].triggerAttackRelease(note, duration, time);
+    try {
+      this.synth[instrument].triggerAttackRelease(note, duration, time);
+    } catch (error) {
+      console.log('Tone.js error', error);
+    }
   }
 }
