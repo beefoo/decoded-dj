@@ -5,6 +5,7 @@ export default class Book {
     const defaults = {
       debug: false,
       onPaginate: () => {},
+      startIndex: 0,
     };
     this.options = Object.assign(defaults, options);
   }
@@ -17,7 +18,7 @@ export default class Book {
     this.pageData = false;
     this.offset = { x: 0, y: 0 };
     this.center = { x: 0.5, y: 0.5 };
-    this.pageIndex = 0;
+    this.pageIndex = this.options.startIndex;
     const pageData = await this.loadPage(this.pageIndex);
     this.loadListeners();
     return pageData;
