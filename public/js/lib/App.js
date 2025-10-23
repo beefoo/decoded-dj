@@ -15,6 +15,7 @@ export default class App {
   }
 
   async init() {
+    this.firstDrag = false;
     this.wasPlayingBeforeBlur = false;
     this.table = new Table();
     this.book = new Book(
@@ -88,6 +89,10 @@ export default class App {
 
   onGlassDrag(pointer) {
     if (!pointer.isPrimary) return;
+    if (!this.firstDrag) {
+      this.firstDrag = true;
+      document.getElementById('drag-icon').classList.remove('active');
+    }
     this.table.onDrag(pointer);
     this.book.onDrag(this.table.getOffset());
     this.loadSequence();

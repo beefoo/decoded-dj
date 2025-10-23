@@ -255,6 +255,22 @@ li {
   stroke-width: 1px;
   transform-origin: center center;
 }
+#drag-icon {
+  position: absolute;
+  right: 8%;
+  top: 45%;
+  width: 8%;
+  height: 8%;
+  display: none;
+}
+#drag-icon.active {
+  display: block;
+}
+#drag-icon path {
+  fill: var(--secondary-light);
+  animation: cycle 5s infinite;
+  transform-origin: center center;
+}
 #play-button:hover path,
 #play-button:focus-visible path,
 #play-button:focus path {
