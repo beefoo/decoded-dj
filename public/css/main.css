@@ -340,18 +340,27 @@ li {
   right: -20px;
 }
 
-#credits {
+#footer {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 30px;
+  height: auto;
   display: flex;
   align-items: center;
   background: rgba(0, 0, 0, 0.5);
   z-index: 200;
-  padding: 0 12px;
+  padding: 6px 12px;
   box-sizing: border-box;
+}
+#credits {
+  flex-grow: 1;
+}
+#options {
+  display: flex;
+}
+#options label {
+  padding: 0 6px 0 12px;
 }
 
 .panel {

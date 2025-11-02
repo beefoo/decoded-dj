@@ -30,7 +30,9 @@ export default class App {
       onStep: (time, note) => this.onSequencerStep(time, note),
     });
     this.synth = new Synth();
-    this.generator = new NoteGenerator();
+    this.generator = new NoteGenerator({
+      onChange: () => this.onScaleChange(),
+    });
     const pageData = await this.book.init();
     if (!pageData) return;
     this.loadSequence();
@@ -106,6 +108,11 @@ export default class App {
   onResize() {
     this.table.onResize();
     this.book.onResize();
+  }
+
+  onScaleChange() {
+    if (!this.isReady) return;
+    this.loadSequence();
   }
 
   onSequencerStep(time, noteData) {

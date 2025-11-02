@@ -64,12 +64,43 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" preserveAspectRatio="none"><path fill="currentColor" d="m15.632 12l-4.748-8.968l-1.768.936L13.368 12l-4.252 8.032l1.768.936z"/></svg>
         <span class="visually-hidden">Next page</span>
       </button>
-      <div id="credits">
-        <div>
-          Texts from
+      <div id="footer">
+        <div id="credits">
+          Texts from the
           <a href="https://www.loc.gov/item/15004720/" target="_blank"
             >Theatrum chemicum britannicum (1652)</a
           >
+        </div>
+        <div id="options">
+          <label for="music-key">Key</label>
+          <select id="music-key">
+            <option value="C">C</option>
+            <option value="C#">C#</option>
+            <option value="D">D</option>
+            <option value="D#">D#</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+            <option value="F#">F#</option>
+            <option value="G" selected>G</option>
+            <option value="G#">G#</option>
+            <option value="A">A</option>
+            <option value="A#">A#</option>
+            <option value="B">B</option>
+          </select>
+          <label for="music-mode">Mode</label>
+          <select id="music-mode">
+            <option value="ionian">Ionian</option>
+            <option value="dorian">Dorian</option>
+            <option value="phrygian">Phrygian</option>
+            <option value="lydian" selected>Lydian</option>
+            <option value="mixolydian">Mixolydian</option>
+            <option value="aeolian">Aeolian</option>
+            <option value="locrian">Locrian</option>
+            <option value="major">Major</option>
+            <option value="minor">Minor</option>
+            <option value="melodic">Melodic</option>
+            <option value="harmonic">Harmonic</option>
+          </select>
         </div>
       </div>
     </div>

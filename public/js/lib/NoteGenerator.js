@@ -6,9 +6,8 @@ export default class NoteGenerator {
     const defaults = {
       debug: false,
       baseOctave: 5,
-      key: 'G',
       maxNotes: 12,
-      mode: 'lydian',
+      onChange: () => {},
       roundToNearest: 4,
     };
     this.options = Object.assign(defaults, options);
@@ -16,10 +15,14 @@ export default class NoteGenerator {
   }
 
   init() {
-    const { key, mode } = this.options;
+    this.$key = document.getElementById('music-key');
+    this.$mode = document.getElementById('music-mode');
+    this.key = this.$key.value;
+    this.mode = this.$mode.value;
     this.chordSequence = [0, 2, 6, 3, 4, 2, 5, 1];
     this.scale = new MusicalScale();
-    this.scale.load(key, mode);
+    this.scale.load(this.key, this.mode);
+    this.loadListeners();
   }
 
   getSequenceFromLetters(letters, center) {
@@ -107,5 +110,17 @@ export default class NoteGenerator {
       sequence.push(chordMatches);
     });
     return sequence;
+  }
+
+  loadListeners() {
+    this.$key.addEventListener('change', (_event) => this.onChange());
+    this.$mode.addEventListener('change', (_event) => this.onChange());
+  }
+
+  onChange() {
+    this.key = this.$key.value;
+    this.mode = this.$mode.value;
+    this.scale.load(this.key, this.mode);
+    this.options.onChange();
   }
 }
