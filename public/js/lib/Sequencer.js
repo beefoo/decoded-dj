@@ -59,6 +59,14 @@ export default class Sequencer {
     this.toneTransport.start();
   }
 
+  resetSequence() {
+    if (this.pattern) {
+      this.pattern.stop();
+      this.pattern.dispose();
+    }
+    this.pattern = false;
+  }
+
   scheduleDraw(callback, time) {
     this.toneDraw.schedule(callback, time);
   }
@@ -76,22 +84,15 @@ export default class Sequencer {
     const { onStep, patternDirection } = this.options;
     const interval = `${sequence.length}n`;
     const playbackRate = Math.floor(12 / sequence.length);
-    if (!this.pattern) {
-      this.pattern = new Tone.Pattern(
-        (time, note) => {
-          this.options.onStep(time, note);
-        },
-        sequence,
-        patternDirection,
-      ).start(0);
-      this.pattern.set({ interval, playbackRate });
-    } else {
-      this.pattern.set({
-        values: sequence,
-        interval,
-        playbackRate,
-      });
-    }
+    this.resetSequence();
+    this.pattern = new Tone.Pattern(
+      (time, note) => {
+        this.options.onStep(time, note);
+      },
+      sequence,
+      patternDirection,
+    ).start(0);
+    this.pattern.set({ interval, playbackRate });
     // update UI
     document
       .querySelectorAll('.letter')
@@ -105,8 +106,7 @@ export default class Sequencer {
     if (sequences.length > 0)
       this.setSequence(this.sequences[this.currentSequenceIndex]);
     else {
-      this.pattern = false;
-      this.pause();
+      this.resetSequence();
     }
   }
 
