@@ -1,5 +1,3 @@
-import StringHelper from './StringHelper.js';
-import Throttler from './Throttler.js';
 import * as Tone from '../vendor/Tone.js';
 
 export default class Synth {

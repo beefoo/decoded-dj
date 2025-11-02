@@ -1,3 +1,4 @@
+import throttle from '../vendor/Throttle.js';
 import * as Tone from '../vendor/Tone.js';
 
 export default class Sequencer {
@@ -111,8 +112,17 @@ export default class Sequencer {
 
   togglePlay() {
     if (!this.isReady()) return;
-    const isPlaying = this.$playButton.classList.contains('playing');
-    if (isPlaying) this.pause();
-    else this.play();
+    if (!this.throttledTogglePlay) {
+      this.throttledTogglePlay = throttle(
+        () => {
+          const isPlaying = this.$playButton.classList.contains('playing');
+          if (isPlaying) this.pause();
+          else this.play();
+        },
+        200,
+        { trailing: false },
+      );
+    }
+    this.throttledTogglePlay();
   }
 }

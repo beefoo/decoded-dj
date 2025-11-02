@@ -72,7 +72,6 @@ export default class PointerManager {
   }
 
   onPointerMove(event) {
-    console.log('move');
     const pointer = this.getPointer(event, false, true);
     if (!pointer) return;
     pointer.onMove(event);
