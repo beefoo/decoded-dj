@@ -101,13 +101,18 @@ export default class Sequencer {
   }
 
   setSequences(sequences) {
-    this.sequences = sequences;
-    this.currentSequenceIndex = 0;
-    if (sequences.length > 0)
-      this.setSequence(this.sequences[this.currentSequenceIndex]);
-    else {
-      this.resetSequence();
+    if (!this.throttledSetSequences) {
+      this.throttledSetSequences = throttle((s) => {
+        this.sequences = s;
+        this.currentSequenceIndex = 0;
+        if (s.length > 0)
+          this.setSequence(this.sequences[this.currentSequenceIndex]);
+        else {
+          this.resetSequence();
+        }
+      }, 200);
     }
+    this.throttledSetSequences(sequences);
   }
 
   togglePlay() {
