@@ -17,6 +17,7 @@ export default class NoteGenerator {
   init() {
     this.$key = document.getElementById('music-key');
     this.$mode = document.getElementById('music-mode');
+    this.$shuffle = document.getElementById('shuffle');
     this.key = this.$key.value;
     this.mode = this.$mode.value;
     this.chordSequence = [0, 2, 6, 3, 4, 2, 5, 1];
@@ -115,6 +116,7 @@ export default class NoteGenerator {
   loadListeners() {
     this.$key.addEventListener('change', (_event) => this.onChange());
     this.$mode.addEventListener('change', (_event) => this.onChange());
+    this.$shuffle.addEventListener('click', (_event) => this.shuffle());
   }
 
   onChange() {
@@ -122,5 +124,16 @@ export default class NoteGenerator {
     this.mode = this.$mode.value;
     this.scale.load(this.key, this.mode);
     this.options.onChange();
+  }
+
+  shuffle() {
+    const { $key, $mode } = this;
+    const keys = $key.getElementsByTagName('option');
+    const modes = $mode.getElementsByTagName('option');
+    const keyIndex = Math.floor(Math.random() * keys.length);
+    const modeIndex = Math.floor(Math.random() * modes.length);
+    $key.selectedIndex = keyIndex;
+    $mode.selectedIndex = modeIndex;
+    this.onChange();
   }
 }

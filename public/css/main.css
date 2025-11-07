@@ -80,11 +80,11 @@ select:focus-visible {
 
 button,
 a.button {
-  background: var(--primary-light);
+  background: var(--secondary-light);
   color: var(--base-darkest);
   border-radius: 6px;
-  border: 4px solid var(--primary-light);
-  padding: 3px 6px;
+  border: none;
+  padding: 0;
   margin: 0;
   line-height: 1;
   display: block;
@@ -94,8 +94,7 @@ a.button {
 button.selected,
 a.button.selected {
   background: var(--base-darker);
-  color: var(--primary-lighter);
-  border: 3px solid var(--primary-light);
+  color: var(--secondary-lighter);
 }
 a.button:focus,
 a.button:focus-visible,
@@ -104,7 +103,7 @@ button:focus-visible,
 a.button:hover,
 button:hover {
   outline: none;
-  border-color: var(--secondary-light);
+  background: var(--secondary-lightest);
 }
 button:disabled {
   background-color: var(--base-dark);
@@ -328,6 +327,11 @@ li {
   fill: var(--secondary-light);
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.7));
 }
+.paginate:hover,
+.paginate:focus-visible,
+.paginate:focus {
+  background: none;
+}
 .paginate:hover path,
 .paginate:focus-visible path,
 .paginate:focus path {
@@ -358,9 +362,14 @@ li {
 }
 #options {
   display: flex;
+  align-items: stretch;
 }
 #options label {
   padding: 0 6px 0 12px;
+  align-self: center;
+}
+#options button {
+  margin-left: 6px;
 }
 
 .panel {

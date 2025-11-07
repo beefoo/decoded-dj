@@ -1,6 +1,6 @@
 {
   "name": "decoded-dj",
-  "description": "Generate grooves hidden in old texts",
+  "description": "Conjuring riffs hidden in old alchemist texts",
   "scripts": {
     "build-tonal": "esbuild node_modules/tonal/dist/index.d.ts --bundle --outfile=public/js/vendor/Tonal.js --format=esm",
     "build-tone": "esbuild node_modules/tone/build/esm/index.d.ts --bundle --outfile=public/js/vendor/Tone.js --format=esm",
