@@ -15,6 +15,7 @@ export default class App {
   }
 
   async init() {
+    this.$app = document.getElementById('app');
     this.firstDrag = false;
     this.wasPlayingBeforeBlur = false;
     this.table = new Table();
@@ -40,8 +41,12 @@ export default class App {
       onDrag: (pointer) => {
         this.onGlassDrag(pointer);
       },
+      onDragEnd: (pointer) => {
+        this.onGlassOff(pointer);
+      },
       onTap: (pointer) => {
         this.onGlassTap(pointer);
+        this.onGlassOff(pointer);
       },
       target: 'glass',
     });
@@ -95,9 +100,15 @@ export default class App {
       this.firstDrag = true;
       document.getElementById('drag-icon').classList.remove('active');
     }
+    this.$app.classList.add('dragging');
     this.table.onDrag(pointer);
     this.book.onDrag(this.table.getOffset());
     this.loadSequence();
+  }
+
+  onGlassOff(pointer) {
+    if (!pointer.isPrimary) return;
+    this.$app.classList.remove('dragging');
   }
 
   onGlassTap(pointer) {

@@ -221,7 +221,7 @@ li {
   background: url(../img/pendant.png) no-repeat;
   background-position: center center;
   background-size: contain;
-  cursor: move;
+  cursor: url('../img/hand_open.png'), move;
 }
 #play-button {
   position: absolute;
@@ -235,8 +235,12 @@ li {
   border-radius: 50%;
   display: block;
   background: none;
-  cursor: pointer;
+  cursor: url('../img/hand_point.png'), pointer;
   border: none;
+}
+.dragging #glass,
+.dragging #play-button {
+  cursor: url('../img/hand_closed.png'), move;
 }
 #play-button svg {
   position: absolute;
