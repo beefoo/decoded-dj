@@ -1,5 +1,6 @@
 import throttle from '../vendor/Throttle.js';
 import * as Tone from '../vendor/Tone.js';
+import { Midi as ToneMidi } from '../vendor/Tone-midi.js';
 
 export default class Sequencer {
   constructor(options = {}) {
@@ -20,6 +21,7 @@ export default class Sequencer {
   init() {
     const { bpm, sequences } = this.options;
     this.$playButton = document.getElementById('play-button');
+    this.$download = document.getElementById('download-pattern');
 
     this.firstPlay = true;
     this.pattern = false;
@@ -34,6 +36,40 @@ export default class Sequencer {
     this.loadListeners();
   }
 
+  download() {
+    if (!this.isReady()) return;
+
+    const notes = this.pattern.values;
+    const { interval } = this.pattern;
+    const noteDur = this.pattern.toSeconds('16n');
+
+    const midi = new ToneMidi();
+    // add a track
+    const track = midi.addTrack();
+
+    // console.log(notes);
+    notes.forEach((note, i) => {
+      const name = `${note.note}${note.octave}`;
+      const time = i * interval;
+      track.addNote({
+        name,
+        time,
+        duration: noteDur,
+      });
+    });
+
+    // convert to data and download
+    const midiBuff = midi.toArray();
+    const midiBlob = new Blob([midiBuff], {
+      type: 'audio/mid',
+    });
+    const midiURL = window.URL.createObjectURL(midiBlob);
+    const $link = document.getElementById('download-midi-link');
+    $link.href = midiURL;
+    $link.click();
+    window.URL.revokeObjectURL(midiURL);
+  }
+
   isReady() {
     return this.pattern !== false;
   }
@@ -41,6 +77,8 @@ export default class Sequencer {
   loadListeners() {
     this.$playButton &&
       this.$playButton.addEventListener('click', (_event) => this.togglePlay());
+
+    this.$download.addEventListener('click', (_event) => this.download());
   }
 
   pause() {

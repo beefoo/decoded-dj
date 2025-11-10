@@ -2,14 +2,14 @@
   "name": "decoded-dj",
   "description": "Conjuring riffs hidden in old alchemist texts",
   "scripts": {
-    "build-tonal": "esbuild node_modules/tonal/dist/index.d.ts --bundle --outfile=public/js/vendor/Tonal.js --format=esm",
+    "build-midi": "esbuild node_modules/@tonejs/midi/src/Midi.ts --bundle --outfile=public/js/vendor/Tone-midi.js --format=esm",
     "build-tone": "esbuild node_modules/tone/build/esm/index.d.ts --bundle --outfile=public/js/vendor/Tone.js --format=esm",
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^5.1.0",
-    "tonal": "^6.4.2",
-    "tone": "^15.1.22"
+    "tone": "^15.1.22",
+    "@tonejs/midi": "^2.0.28"
   },
   "devDependencies": {
     "esbuild": "^0.25.5",
