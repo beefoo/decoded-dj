@@ -17,7 +17,7 @@ parser.add_argument(
 parser.add_argument(
     "-pp",
     "--pages",
-    default="426-436",
+    default="419-436",
     help="A range, a list, or a list of ranges, e.g. 4,6-10,20,25-40; 'all' for all pages",
 )
 parser.add_argument(
